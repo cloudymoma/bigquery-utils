@@ -1656,6 +1656,26 @@ generate_udf_test("cw_array_distinct", [
         expected_output: `CAST([1, 2, 3, 4, 5] AS ARRAY<INT64>)`
     },
 ]);
+generate_udf_test("cw_array_stable_distinct", [
+    {
+        inputs: [
+            `(SELECT ARRAY[4, 1, 4, 9, 1, 10])`
+        ],
+        expected_output: `[4, 1, 9, 10]`
+    },
+    {
+        inputs: [
+            `(SELECT ARRAY[])`
+        ],
+        expected_output: `[]`
+    },
+    {
+        inputs: [
+            `(SELECT ARRAY[5, 5, 5, 5, 5, 5])`
+        ],
+        expected_output: `[5]`
+    },
+]);
 generate_udf_test("cw_next_day", [
     {
         inputs: [
@@ -2058,6 +2078,158 @@ generate_udf_test("cw_setbit", [
         ],
         expected_output: `CAST(1005 AS INT64)`
     },
+]);
+generate_udf_test("cw_signed_leftshift_128bit", [
+    {
+        inputs: [
+            `BIGNUMERIC '1'`, `BIGNUMERIC '3'`
+        ],
+        expected_output: `BIGNUMERIC '8'`
+    },
+    {
+        inputs: [
+            `BIGNUMERIC '1'`, `BIGNUMERIC '127'`
+        ],
+        expected_output: `BIGNUMERIC '-170141183460469231731687303715884105728'`
+    },
+    {
+        inputs: [
+            `BIGNUMERIC '1'`, `BIGNUMERIC '300'`
+        ],
+        expected_output: `BIGNUMERIC '0'`
+    },
+    {
+        inputs: [
+            `BIGNUMERIC '-5'`, `BIGNUMERIC '2'`
+        ],
+        expected_output: `BIGNUMERIC '-20'`
+    },
+    {
+        inputs: [
+            `BIGNUMERIC '7'`, `BIGNUMERIC '0'`
+        ],
+        expected_output: `BIGNUMERIC '7'`
+    },
+    {
+        inputs: [
+            `BIGNUMERIC '0'`, `BIGNUMERIC '10'`
+        ],
+        expected_output: `BIGNUMERIC '0'`
+    },
+    {
+        inputs: [
+            `BIGNUMERIC '56713727820156410577229101238628035242'`,
+            `BIGNUMERIC '1'`
+        ],
+        expected_output: `BIGNUMERIC '113427455640312821154458202477256070484'`
+    },
+    {
+        inputs: [
+            `BIGNUMERIC '56713727820156410577229101238628035242'`,
+            `BIGNUMERIC '2'`
+        ],
+        expected_output: `BIGNUMERIC '-113427455640312821154458202477256070488'`
+    },
+    {
+        inputs: [
+            `BIGNUMERIC '56713727820156410577229101238628035242'`,
+            `BIGNUMERIC '3'`
+        ],
+        expected_output: `BIGNUMERIC '113427455640312821154458202477256070480'`
+    },
+    {
+        inputs: [
+            `BIGNUMERIC '56713727820156410577229101238628035242'`,
+            `BIGNUMERIC '4'`
+        ],
+        expected_output: `BIGNUMERIC '-113427455640312821154458202477256070496'`
+    },
+    {
+        inputs: [
+            `BIGNUMERIC '56713727820156410577229101238628035242'`,
+            `BIGNUMERIC '5'`
+        ],
+        expected_output: `BIGNUMERIC '113427455640312821154458202477256070464'`
+    },
+    {
+        inputs: [
+            `BIGNUMERIC '56713727820156410577229101238628035242'`,
+            `BIGNUMERIC '6'`
+        ],
+        expected_output: `BIGNUMERIC '-113427455640312821154458202477256070528'`
+    },
+    {
+        inputs: [
+            `BIGNUMERIC '56713727820156410577229101238628035242'`,
+            `BIGNUMERIC '7'`
+        ],
+        expected_output: `BIGNUMERIC '113427455640312821154458202477256070400'`
+    }
+]);
+generate_udf_test("cw_signed_rightshift_128bit", [
+    {
+        inputs: [
+            `BIGNUMERIC '32'`,
+            `BIGNUMERIC '3'`
+        ],
+        expected_output: `BIGNUMERIC '4'`
+    },
+    {
+        inputs: [
+            `BIGNUMERIC '7'`,
+            `BIGNUMERIC '1'`
+        ],
+        expected_output: `BIGNUMERIC '3'`
+    },
+    {
+        inputs: [
+            `BIGNUMERIC '-7'`,
+            `BIGNUMERIC '1'`
+        ],
+        expected_output: `BIGNUMERIC '-4'`
+    },
+    {
+        inputs: [
+            `BIGNUMERIC '-1'`,
+            `BIGNUMERIC '1'`
+        ],
+        expected_output: `BIGNUMERIC '-1'`
+    },
+    {
+        inputs: [
+            `BIGNUMERIC '-1'`,
+            `BIGNUMERIC '100'`
+        ],
+        expected_output: `BIGNUMERIC '-1'`
+    },
+    {
+        inputs: [
+            `BIGNUMERIC '-1'`,
+            `BIGNUMERIC '300'`
+        ],
+        expected_output: `BIGNUMERIC '-1'`
+    },
+    {
+        inputs: [
+            `BIGNUMERIC '1'`,
+            `BIGNUMERIC '1'`
+        ],
+        expected_output: `BIGNUMERIC '0'`
+    },
+    {
+        inputs: [
+            `BIGNUMERIC '7'`,
+            `BIGNUMERIC '0'`
+        ],
+        expected_output: `BIGNUMERIC '7'`
+    },
+    {
+        inputs: [
+            `BIGNUMERIC '0'`,
+            `BIGNUMERIC '10'`
+        ],
+        expected_output: `BIGNUMERIC '0'`
+    }
 ]);
 generate_udf_test("cw_lower_case_ascii_only", [
     {
@@ -2914,3 +3086,52 @@ generate_udf_test("sure_values", [
     expected_output: `NULL`
   }
 ]);
+
+generate_udf_test("job_url", [
+    {
+      inputs: [
+        `"my_project:us.my_job_id"`
+      ],
+      expected_output: `"https://console.cloud.google.com/bigquery?project=my_project&j=bq:us:my_job_id"`
+    },
+    {
+      inputs: [
+        `"my_job_id"`
+      ],
+      expected_output: `NULL`
+    },
+    {
+      inputs: [
+        `NULL`
+      ],
+      expected_output: `NULL`
+    }
+]);
+  
+generate_udf_test("table_url", [
+    {
+      inputs: [
+        `"my_project.my_dataset.my_table"`
+      ],
+      expected_output: `"https://console.cloud.google.com/bigquery?p=my_project&d=my_dataset&t=my_table&page=table"`
+    },
+    {
+      inputs: [
+        `"my_dataset.my_table"`
+      ],
+      expected_output: `NULL`
+    },
+    {
+      inputs: [
+        `"my_table"`
+      ],
+      expected_output: `NULL`
+    },
+    {
+      inputs: [
+        `NULL`
+      ],
+      expected_output: `NULL`
+    }
+    
+  ]);
